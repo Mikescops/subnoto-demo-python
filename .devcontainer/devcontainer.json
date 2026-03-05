@@ -1,0 +1,38 @@
+{
+    "name": "Python",
+    "image": "mcr.microsoft.com/devcontainers/python:3.14",
+    "features": {},
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy",
+                "charliermarsh.ruff",
+                "ms-toolsai.jupyter",
+                "ms-toolsai.jupyter-keymap",
+                "ms-toolsai.jupyter-renderers",
+                "tamasfe.even-better-toml",
+                "njpwerner.autodocstring",
+                "usernamehw.errorlens",
+                "eamodio.gitlens"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.analysis.typeCheckingMode": "basic",
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": "explicit"
+                    }
+                },
+                "ruff.organizeImports": true,
+                "ruff.fixAll": true
+            }
+        }
+    },
+    "runArgs": ["--platform=linux/amd64"],
+    "forwardPorts": [8000],
+    "postCreateCommand": "pip install --upgrade pip && pip install pytest pytest-cov ipython ruff mypy uv"
+}

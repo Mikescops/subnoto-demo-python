@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify app loads
+        env:
+          SUBNOTO_ACCESS_KEY: ci-placeholder
+          SUBNOTO_SECRET_KEY: ci-placeholder
+          WORKSPACE_UUID: 00000000-0000-0000-0000-000000000000
+        run: python -c "from app import create_app; create_app(); print('OK')"

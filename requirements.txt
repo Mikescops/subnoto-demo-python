@@ -1,0 +1,4 @@
+flask>=3.0
+subnoto-api-client>=2.5
+reportlab>=4.0
+python-dotenv>=1.0
