@@ -8,7 +8,7 @@ This app shows how to use the Subnoto API from Python and embed the signing flow
 
 ## Quick start
 
-**Requirements:** Python 3.10+ and pip (or venv). Details are in [docs/getting-started.md](docs/getting-started.md).
+**Requirements:** Python 3.11+ and pip (or venv). Details are in [docs/getting-started.md](docs/getting-started.md).
 
 1. **Environment**: Copy `.env.example` to `.env` in the project root and set your Subnoto credentials:
     - `SUBNOTO_ACCESS_KEY`, `SUBNOTO_SECRET_KEY`, `WORKSPACE_UUID`
