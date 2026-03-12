@@ -1,4 +1,4 @@
 flask>=3.0
-subnoto-api-client>=2.5
+subnoto-api-client>=2.9.9
 reportlab>=4.0
 python-dotenv>=1.0

@@ -1,5 +1,6 @@
 {
     "name": "Python",
+    "runArgs": ["--platform=linux/amd64"],
     "image": "mcr.microsoft.com/devcontainers/python:3.14",
     "features": {},
     "customizations": {
@@ -32,7 +33,6 @@
             }
         }
     },
-    "runArgs": ["--platform=linux/amd64"],
     "forwardPorts": [8000],
     "postCreateCommand": "pip install --upgrade pip && pip install pytest pytest-cov ipython ruff mypy uv"
 }

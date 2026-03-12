@@ -89,6 +89,48 @@ def create_envelope_and_iframe_url(
         create_result = resp.json()
         envelope_uuid = create_result["envelopeUuid"]
 
+        # 1b. For each recipient detected via Smart Anchors, enable email verification
+        smart_anchor = create_result.get("smartAnchor")
+        smart_anchor_recipients = (
+            smart_anchor.get("recipients") if isinstance(smart_anchor, dict) else []
+        ) or []
+        for recipient in smart_anchor_recipients:
+            if isinstance(recipient, str):
+                recipient_email = recipient
+                recipient_role = "signer"
+            elif isinstance(recipient, dict):
+                recipient_email = recipient.get("email")
+                recipient_role = recipient.get("role", "signer")
+            else:
+                logger.warning("smartAnchor recipient invalid type: %s", type(recipient))
+                continue
+            if not recipient_email:
+                logger.warning("smartAnchor recipient missing email: %s", recipient)
+                continue
+            # API requires: email, role, and updates (object with verificationType)
+            update_payload = {
+                "workspaceUuid": config.WORKSPACE_UUID,
+                "envelopeUuid": envelope_uuid,
+                "email": recipient_email,
+                "role": recipient_role,
+                "updates": {"verificationType": "email"},
+            }
+            r_update = client.post(
+                "/public/envelope/update-recipient",
+                json=update_payload,
+            )
+            if not r_update.is_success:
+                logger.warning(
+                    "update-recipient failed for recipient %s: %s",
+                    recipient_email,
+                    api_error_detail(r_update),
+                )
+            else:
+                logger.info(
+                    "update-recipient enabled email verification for %s",
+                    recipient_email,
+                )
+
         # 2. Send with distributionMethod=none (no email; signing via iframe)
         # Recipients and signature blocks come from Smart Anchors in the PDF; no add-recipients/add-blocks.
         r = client.post(
