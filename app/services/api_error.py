@@ -14,15 +14,22 @@ def api_error_detail(resp) -> str:
         body = None
 
     if isinstance(body, dict):
-        # Normalize: error payload may be top-level or under "error" / "code"
-        err = body
-        if "error" in body and isinstance(body["error"], dict):
-            err = body["error"]
-        elif "code" in body and isinstance(body["code"], dict):
+        # SDK shape: prefer body["error"]["message"] then normalize other payloads
+        err = body.get("error") if isinstance(body.get("error"), dict) else body
+        if err is body and "code" in body and isinstance(body["code"], dict):
             err = body["code"]
 
         code = err.get("code") if isinstance(err.get("code"), str) else None
-        message = err.get("message") or err.get("errorMessage") or err.get("description")
+        message = (
+            (
+                (body.get("error") or {}).get("message")
+                if isinstance(body.get("error"), dict)
+                else None
+            )
+            or err.get("message")
+            or err.get("errorMessage")
+            or err.get("description")
+        )
         suggestion = err.get("suggestion")
         doc_url = err.get("documentationUrl")
 
@@ -37,7 +44,7 @@ def api_error_detail(resp) -> str:
             parts.append(doc_url)
 
         if len(parts) > 1:
-            return " – ".join(parts)
+            return " - ".join(parts)
 
     text = getattr(resp, "text", None) or ""
     if text and len(text) < 500:

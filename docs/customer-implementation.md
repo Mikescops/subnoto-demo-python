@@ -1,6 +1,6 @@
 # Customer implementation tutorial (Python)
 
-This guide explains how to implement the same flow on your side: set up the API client, create an envelope from a PDF with Smart Anchors, and embed the signing iframe.
+This guide explains how to implement the same flow on your side: set up the API client, create an envelope from a PDF with Smart Anchors, and embed the signing iframe. It assumes **subnoto-api-client 2.11+**: use the public client’s `client.post(..., data=..., files=...)` for create-from-file, and the SDK’s `SubnotoError` and `get_error_code` for API error handling.
 
 Reference code in this repo:
 
@@ -29,7 +29,7 @@ pip install subnoto-api-client
 ```
 
 ```python
-from subnoto_api_client import SubnotoConfig, SubnotoSyncClient
+from subnoto_api_client import SubnotoConfig, SubnotoSyncClient, SubnotoError, get_error_code
 
 cfg = SubnotoConfig(
     api_base_url=os.environ.get("SUBNOTO_BASE_URL", "https://enclave.subnoto.com"),
@@ -57,7 +57,7 @@ If your PDF already contains **Smart Anchors** (e.g. `{{ signer@example.com | si
 
 **1. Create envelope from file with Smart Anchor detection**
 
-Use multipart form data: `workspaceUuid`, `envelopeTitle`, `detectSmartAnchors`, and the PDF file.
+Use multipart form data: `workspaceUuid`, `envelopeTitle`, `detectSmartAnchors`, and the PDF file. The public client supports multipart; use `client.post(..., data=..., files=...)`.
 
 ```python
 from io import BytesIO
@@ -70,13 +70,19 @@ data = {
 }
 
 with SubnotoSyncClient(cfg) as client:
-    resp = client._client.post(
+    resp = client.post(
         "/public/envelope/create-from-file",
         data=data,
         files=files,
     )
     if not resp.is_success:
-        raise ValueError(...)  # handle error from resp
+        try:
+            body = resp.json()
+        except Exception:
+            body = {}
+        msg = (body.get("error") or {}).get("message", str(body)) if isinstance(body, dict) else getattr(resp, "text", "")
+        code = get_error_code(body) if isinstance(body, dict) else None
+        raise SubnotoError(f"{code}: {msg}" if code else msg, resp.status_code)
     create_result = resp.json()
     envelope_uuid = create_result["envelopeUuid"]
 ```
@@ -93,10 +99,12 @@ r = client.post(
     },
 )
 if not r.is_success:
-    raise ValueError(...)
+    body = r.json()
+    msg = (body.get("error") or {}).get("message", str(body)) if isinstance(body, dict) else r.text
+    raise SubnotoError(f"{get_error_code(body) or ''}: {msg}".strip(": "), r.status_code)
 ```
 
-You do not call add-recipients or add-blocks. See `app/services/subnoto_service.py` (`create_envelope_and_iframe_url`) for the full flow and error handling.
+You do not call add-recipients or add-blocks. See `app/services/subnoto_service.py` (`create_envelope_and_iframe_url`) for the full flow and error handling (including `SubnotoError` and `get_error_code` from the SDK).
 
 ---
 
@@ -116,11 +124,13 @@ r = client.post(
     },
 )
 if not r.is_success:
-    raise ValueError(...)
+    body = r.json()
+    msg = (body.get("error") or {}).get("message", str(body)) if isinstance(body, dict) else r.text
+    raise SubnotoError(f"{get_error_code(body) or ''}: {msg}".strip(": "), r.status_code)
 token_body = r.json()
 iframe_token = token_body.get("iframeToken")
 if not iframe_token:
-    raise ValueError("create-iframe-token did not return iframeToken")
+    raise SubnotoError("create-iframe-token did not return iframeToken", r.status_code)
 ```
 
 **Build iframe URL**

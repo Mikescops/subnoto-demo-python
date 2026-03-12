@@ -4,6 +4,7 @@
 
 - **Python** (3.10+)
 - **pip** (or use a virtual environment)
+- **subnoto-api-client** 2.11 or newer (see [requirements.txt](../requirements.txt))
 - A Subnoto workspace and API credentials
 
 ## Setup
@@ -52,3 +53,5 @@
 - **Quote** (`/`): Fill in the quote form (title, amount, recipient name and email, etc.). Click "Send for signature". The app builds a PDF with ReportLab, creates an envelope with Smart Anchor detection (recipient and signature block come from the PDF), sends with no email, and opens the signing iframe.
 
 No sample PDF file is required; the quote PDF is generated from the form.
+
+For implementing the same flow in your own app (client setup, create-from-file, send, iframe token, and error handling with `SubnotoError` / `get_error_code`), see [Customer implementation](customer-implementation.md).

@@ -2,13 +2,15 @@
 
 This app shows how to use the Subnoto API from Python and embed the signing flow in your own product. You create an envelope from a quote PDF (built with Smart Anchors), send it without email, and open the signing experience in an iframe.
 
+Uses **subnoto-api-client 2.11+**: the public client for multipart create-from-file, and the SDK’s error helpers (`SubnotoError`, `get_error_code`) for API errors.
+
 ## Demo
 
 - **Quote** (`/`): Fill in a quote form, then send for signature. The app builds a PDF with ReportLab, creates an envelope with Smart Anchors (recipient and signature block are detected from the PDF), sends with no email, and opens signing in an iframe.
 
 ## Quick start
 
-**Requirements:** Python 3.11+ and pip (or venv). Details are in [docs/getting-started.md](docs/getting-started.md).
+**Requirements:** Python 3.11+, pip (or venv), and `subnoto-api-client` 2.11+. Details are in [docs/getting-started.md](docs/getting-started.md).
 
 1. **Environment**: Copy `.env.example` to `.env` in the project root and set your Subnoto credentials:
     - `SUBNOTO_ACCESS_KEY`, `SUBNOTO_SECRET_KEY`, `WORKSPACE_UUID`
